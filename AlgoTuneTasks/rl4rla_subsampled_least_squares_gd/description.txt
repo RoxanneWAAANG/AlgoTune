@@ -1,0 +1,65 @@
+Subsampled Least-Squares Gradient Descent (Sketch-and-Solve) Task
+
+Based on: RL4RLA (ICML submission) — curriculum "sketch_n_solve_low_cond",
+config DiscoverNLA/hp/mcgs_ucd/sketch_n_solve_low_cond/2.yml.
+
+Given an overdetermined least-squares problem A x ≈ b where A ∈ R^{m×n} (m >> n)
+has a LOW_COND spectrum (linearly-spaced singular values, condition number = 2)
+and high-leverage row structure (multivariate-t left singular vectors), find x*
+that minimises (1/2) ||A x - b||².
+
+The RL agent discovers "sketch and solve - low cond" — leverage-score subsampled
+gradient descent — starting from plain gradient descent.  The target algorithm:
+  1. [SETUP, ONCE] Compute statistical leverage scores: lev_i = ||A_i||² / ||A||_F²
+  2. [SETUP, ONCE] Sample a fixed subset S of batch_size rows proportional to lev_i.
+                   Let A_S = A[S, :],  b_S = b[S].
+  3. [EACH ITERATION] Run gradient descent on the sub-problem A_S x ≈ b_S:
+       g_t  = A_S^T (A_S x_t - b_S)    (gradient on subsampled system)
+       x_{t+1} = x_t - lr × g_t
+
+Because A has condition number 2 (LOW_COND), the gradient descent on the
+sub-problem converges rapidly.  The sub-sampling reduces per-iteration cost from
+O(mn) to O(batch_size × n) while preserving convergence on well-conditioned data.
+
+System parameters (n = number of columns, problem size):
+  num_rows         = n × 200    (= 10 000 when n = 50)
+  condition_number = 2.0  (LOW_COND — linearly spaced spectrum in [1, 2])
+  left sing. vecs  = multivariate-t QR (df=0.1), high statistical leverage
+  right sing. vecs = Gaussian orthonormal QR
+  prop_range       = 1.0  (b lies in column space of A → consistent system)
+  sampling_factor  = 8,   batch_size = 100
+  max_iterations   = 10,  learning_rate = 0.2
+
+Input: A dictionary with keys:
+  - "A":               numpy array of shape (num_rows, num_cols), the feature matrix
+  - "b":               numpy array of shape (num_rows,), the right-hand side
+  - "x_opt":           numpy array of shape (num_cols,), the pseudoinverse solution
+  - "num_rows":        int, number of rows m
+  - "num_cols":        int, number of columns n (= problem size parameter)
+  - "condition_number": float (2.0)
+  - "sampling_factor": int (8)
+  - "batch_size":      int (100), number of rows sampled at setup
+  - "max_iterations":  int (10)
+  - "learning_rate":   float (0.2)
+
+Output: A dictionary with key:
+  - "x": numpy array of shape (num_cols,), the approximate solution
+
+Example input (n=3, illustrative):
+{
+    "A": [[1.05, 0.1, 0.0], [0.0, 1.5, 0.2], ...],
+    "b": [0.7, 1.2, ...],
+    "num_rows": 600, "num_cols": 3,
+    "condition_number": 2.0,
+    "sampling_factor": 8, "batch_size": 100,
+    "max_iterations": 10, "learning_rate": 0.2
+}
+
+Example output:
+{
+    "x": [0.62, 0.74, 0.11]
+}
+
+Verification: ||A x - b|| / ||b|| < 0.01
+
+Category: matrix_operations

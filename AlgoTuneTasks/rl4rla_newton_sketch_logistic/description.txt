@@ -1,0 +1,73 @@
+Newton Sketch for Logistic Regression Task
+
+Based on: RL4RLA (ICML submission) — curriculum "final_newton_sketch",
+config DiscoverNLA/hp/mcgs_ucd/final_newton_sketch/2b_newton_sketch_composed.yml.
+
+Given a binary logistic regression problem with feature matrix A ∈ R^{m×n} and
+binary labels y ∈ {0,1}^m, minimise the cross-entropy loss:
+
+    L(x) = -(1/m) Σ_i [ y_i log σ(a_i^T x) + (1-y_i) log(1 - σ(a_i^T x)) ]
+
+where σ(z) = 1 / (1 + exp(-z)) is the sigmoid function.
+
+The RL agent discovers "C3_newton_sketch_composed" — Newton Sketch — starting from
+"C2_full_newton_composed" (Full Newton).  Per iteration the target algorithm:
+  1. σ   = sigmoid(A x_t)
+  2. r   = σ - y                          (residual = gradient direction)
+  3. w   = σ ⊙ (1 - σ)                  (Hessian diagonal weights)
+  4. Ã   = diag(√w) A                    (weighted feature matrix, m×n)
+  5. Ã_S = S Ã   where S ~ SJLT          (sketch: d×m, d = sampling_factor × n)
+  6. Ĥ   = Ã_S^T Ã_S                    (sketched Hessian approximation, n×n)
+  7. g   = A^T r                          (gradient, n)
+  8. d   = Ĥ^{-1} g                      (sketched Newton direction)
+  9. x_{t+1} = x_t - lr × d
+
+Compared to Full Newton (which forms the exact Hessian H = Ã^T Ã, cost O(mn²)),
+Newton Sketch replaces H with a cheaper sketched approximation Ĥ = Ã_S^T Ã_S
+(cost O(d·n²) with d = sampling_factor × n << m), achieving the same quadratic
+convergence at lower per-iteration cost.
+
+System parameters (n = number of columns, problem size):
+  num_rows         = n × 100    (= 10 000 when n = 100)
+  separability     = 5.0  (higher → more linearly separable classes)
+  A                ~ N(0,1)^{m×n}  (Gaussian features)
+  w_true           ~ N(0,I), normalised  (true weight vector)
+  labels           y_i = 1{a_i^T w_true + N(0, 1/sep²) > 0}
+  sampling_factor  = 4,   batch_size = 200
+  max_iterations   = 20,  learning_rate = 0.5
+
+Input: A dictionary with keys:
+  - "A":              numpy array of shape (num_rows, num_cols), feature matrix
+  - "y":              numpy array of shape (num_rows,), binary labels in {0.0, 1.0}
+  - "w_true":         numpy array of shape (num_cols,), true weight vector
+  - "num_rows":       int, number of training examples m
+  - "num_cols":       int, number of features n (= problem size parameter)
+  - "separability":   float (5.0)
+  - "sampling_factor": int (4), sketch dimension = sampling_factor × num_cols
+  - "batch_size":     int (200)
+  - "max_iterations": int (20)
+  - "learning_rate":  float (0.5)
+
+Output: A dictionary with key:
+  - "x": numpy array of shape (num_cols,), the learned weight vector
+
+Example input (n=3, illustrative):
+{
+    "A": [[0.52, -1.1, 0.3], [-0.7, 0.4, 1.2], ...],
+    "y": [1.0, 0.0, 1.0, ...],
+    "num_rows": 300, "num_cols": 3,
+    "separability": 5.0,
+    "sampling_factor": 4, "batch_size": 200,
+    "max_iterations": 20, "learning_rate": 0.5
+}
+
+Example output:
+{
+    "x": [0.71, -0.43, 0.58]
+}
+
+Verification: binary cross-entropy loss L(x) < 0.5
+  (random-guess baseline: L ≈ log(2) ≈ 0.693; threshold 0.5 requires genuine
+   convergence — matching the DiscoverNLA complexity_reward criterion)
+
+Category: ml_training

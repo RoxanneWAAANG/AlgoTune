@@ -1,0 +1,66 @@
+Block Randomized Kaczmarz (Sketch-and-Project) Task
+
+Based on: RL4RLA (ICML submission) — curriculum "sketch_n_project",
+config DiscoverNLA/hp/mcgs_ucd/sketch_n_project/3.yml.
+
+Given an overdetermined least-squares problem A x ≈ b where A ∈ R^{m×n} (m >> n)
+has a MID_COND spectrum (chi-squared distributed singular values) and near-uniform
+row leverage (Gaussian left singular vectors), find x* that minimises
+(1/2) ||A x - b||².
+
+The RL agent discovers "sketch and project" — Block Randomized Kaczmarz —
+starting from plain gradient descent.  The target algorithm per iteration:
+  1. Sample a random batch S_t of batch_size rows uniformly at random.
+  2. Compute the block Kaczmarz (sketch-and-project) update:
+       A_S  = A[S_t, :]           (sub-matrix of sampled rows, batch_size × n)
+       b_S  = b[S_t]              (corresponding RHS entries)
+       r_S  = A_S x_t - b_S      (sub-residual)
+       d_t  = A_S^T (A_S A_S^T)^{-1} r_S    (minimum-norm correction)
+       x_{t+1} = x_t - lr × d_t
+
+This corresponds to the DiscoverNLA update_loop:
+  R1 = A_S A_S^T,   R1 = R1^{-1},   V1 = R1 V1,   V1 = A_S^T V1
+
+The update is the orthogonal projection of x_t onto the affine subspace
+{x : A_S x = b_S}, which generalises the classical Kaczmarz method to blocks.
+
+System parameters (n = number of columns, problem size):
+  num_rows         = n × 200    (= 10 000 when n = 50)
+  spectrum         = chi-squared (df=1) singular values
+  left sing. vecs  = Gaussian orthonormal QR (uniform statistical leverage)
+  right sing. vecs = Gaussian orthonormal QR
+  prop_range       = 1.0  (consistent system, b in column space of A)
+  sampling_factor  = 8,   batch_size = 100
+  max_iterations   = 10,  learning_rate = 0.5
+
+Input: A dictionary with keys:
+  - "A":              numpy array of shape (num_rows, num_cols), the feature matrix
+  - "b":              numpy array of shape (num_rows,), the right-hand side
+  - "x_opt":          numpy array of shape (num_cols,), the pseudoinverse solution
+  - "num_rows":       int, number of rows m
+  - "num_cols":       int, number of columns n (= problem size parameter)
+  - "sampling_factor": int (8)
+  - "batch_size":     int (100), block size per Kaczmarz step
+  - "max_iterations": int (10)
+  - "learning_rate":  float (0.5)
+
+Output: A dictionary with key:
+  - "x": numpy array of shape (num_cols,), the approximate solution
+
+Example input (n=3, illustrative):
+{
+    "A": [[1.2, 0.5, 0.3], [0.2, 2.1, 0.4], ...],
+    "b": [0.9, 1.5, ...],
+    "num_rows": 600, "num_cols": 3,
+    "sampling_factor": 8, "batch_size": 100,
+    "max_iterations": 10, "learning_rate": 0.5
+}
+
+Example output:
+{
+    "x": [0.31, 0.55, 0.12]
+}
+
+Verification: ||A x - b|| / ||b|| < 0.01
+
+Category: matrix_operations
