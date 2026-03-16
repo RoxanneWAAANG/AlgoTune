@@ -57,6 +57,7 @@ from AlgoTuneTasks.base import register_task, Task
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _sigmoid(z):
     """Numerically stable sigmoid."""
     return 1.0 / (1.0 + np.exp(-z))
@@ -85,8 +86,7 @@ def _create_sjlt(rng, num_sketch_rows, num_cols, vec_nnz=8):
         cols_idx = np.repeat(np.arange(num_cols), vec_nnz)
         vals = np.where(rng.random(num_cols * vec_nnz) <= 0.5, -1.0, 1.0)
         vals /= np.sqrt(vec_nnz)
-        S = spar.coo_matrix((vals, (rows_idx, cols_idx)),
-                            shape=(num_sketch_rows, num_cols)).tocsc()
+        S = spar.coo_matrix((vals, (rows_idx, cols_idx)), shape=(num_sketch_rows, num_cols)).tocsc()
     else:
         S = _create_sjlt(rng, num_cols, num_sketch_rows, vec_nnz)
         S = S.T.tocsr()
@@ -96,6 +96,7 @@ def _create_sjlt(rng, num_sketch_rows, num_cols, vec_nnz=8):
 # ---------------------------------------------------------------------------
 # Task class
 # ---------------------------------------------------------------------------
+
 
 @register_task("rl4rla_newton_sketch_logistic")
 class Solution(Task):
@@ -137,7 +138,7 @@ class Solution(Task):
         """
         rng = np.random.default_rng(random_seed)
         num_cols = n
-        num_rows = n * 100       # m = 100 n  →  10 000 when n = 100
+        num_rows = n * 100  # m = 100 n  →  10 000 when n = 100
         separability = 5.0
 
         # True weights (normalised)
@@ -186,24 +187,24 @@ class Solution(Task):
         """
         A = problem["A"]
         y = problem["y"]
-        lr = problem["learning_rate"]     # 0.5
+        lr = problem["learning_rate"]  # 0.5
         max_iter = problem["max_iterations"]  # 20
 
         x = np.zeros(problem["num_cols"])
         for _ in range(max_iter):
             z = A @ x
-            p = _sigmoid(z)               # σ
-            r = p - y                     # residual = σ - y
-            w = p * (1.0 - p)            # Hessian weights σ(1-σ)
+            p = _sigmoid(z)  # σ
+            r = p - y  # residual = σ - y
+            w = p * (1.0 - p)  # Hessian weights σ(1-σ)
 
             sqrt_w = np.sqrt(w)
-            A_tilde = sqrt_w[:, np.newaxis] * A   # D^{1/2} A  (m, n)
+            A_tilde = sqrt_w[:, np.newaxis] * A  # D^{1/2} A  (m, n)
 
-            H = A_tilde.T @ A_tilde       # A^T D A  (n, n)   [Hessian]
-            H_inv = la.pinv(H)            # H^{-1}
+            H = A_tilde.T @ A_tilde  # A^T D A  (n, n)   [Hessian]
+            H_inv = la.pinv(H)  # H^{-1}
 
-            g = A.T @ r                   # gradient  (n,)
-            d = H_inv @ g                 # Newton direction
+            g = A.T @ r  # gradient  (n,)
+            d = H_inv @ g  # Newton direction
             x = x - lr * d
 
         return {"x": x}
@@ -235,9 +236,7 @@ class Solution(Task):
             logging.error("Cannot convert solution['x'] to numpy array.")
             return False
         if x.shape != (problem["num_cols"],):
-            logging.error(
-                f"Wrong shape: expected ({problem['num_cols']},), got {x.shape}."
-            )
+            logging.error(f"Wrong shape: expected ({problem['num_cols']},), got {x.shape}.")
             return False
         if not np.isfinite(x).all():
             logging.error("Solution contains NaN or Inf.")

@@ -116,12 +116,12 @@ run_agent_standalone() {
     # ---
 
     # Check if dependencies are available or use container
-    if ! python3 -c "import orjson; import numpy" 2>/dev/null; then
+    if ! python -c "import orjson; import numpy" 2>/dev/null; then
         # Dependencies not available, check for Singularity
         if [ -f "$PROJECT_ROOT/config.env" ] || [ -f "$PROJECT_ROOT/slurm/run_config.env" ]; then
             echo "🐍 Running agent via Singularity container..."
             # Use algotune.py which handles Singularity
-            exec python3 "$SCRIPT_DIR/algotune.py" agent --standalone --model "$model" "${tasks[@]}"
+            exec python "$SCRIPT_DIR/algotune.py" agent --standalone --model "$model" "${tasks[@]}"
         else
             echo "❌ Dependencies not installed and no Singularity configured."
             echo "   Please run: pip install -e ."
@@ -168,7 +168,7 @@ run_agent_standalone() {
         
         for task in "${tasks[@]}"; do
             echo "🎯 Running task: $task"
-            python3 -m AlgoTuner.main --model "$model" --task "$task"
+            python -m AlgoTuner.main --model "$model" --task "$task"
         done
     fi
 }
@@ -190,7 +190,7 @@ case "$COMMAND" in
         # ---
         if [ "$STANDALONE" = true ] || ([ "$HAS_SLURM" = false ] && [ "$STANDALONE" != true ]); then
             echo "🐍 Running baseline generation in standalone mode..."
-            exec python3 "$SCRIPT_DIR/algotune.py" timing --standalone "$@"
+            exec python "$SCRIPT_DIR/algotune.py" timing --standalone "$@"
         else
             echo "🤖 Submitting baseline generation to SLURM..."
             exec "$SCRIPT_DIR/run_algotune.sh" "$@"
@@ -262,7 +262,7 @@ case "$COMMAND" in
 
         echo "🔎 Reading N/A tasks for model '$MODEL' from $SUMMARY_PATH ..."
         # Use Python for robust JSON parsing
-        mapfile -t NA_TASKS < <(python3 - <<'PY'
+        mapfile -t NA_TASKS < <(python - <<'PY'
 import json, os, sys
 summary_path = os.environ.get('SUMMARY_PATH')
 model = os.environ.get('MODEL')
@@ -307,19 +307,19 @@ PY
     "test")
         if [ "$STANDALONE" = true ] || ([ "$HAS_SLURM" = false ] && [ "$STANDALONE" != true ]); then
             echo "🐍 Running tests in standalone mode..."
-            exec python3 "$SCRIPT_DIR/algotune.py" test --standalone "$@"
+            exec python "$SCRIPT_DIR/algotune.py" test --standalone "$@"
         else
             echo "🤖 Submitting test jobs to SLURM..."
-            exec python3 "$SCRIPT_DIR/algotune.py" test "$@"
+            exec python "$SCRIPT_DIR/algotune.py" test "$@"
         fi
         ;;
     
     "list-tasks")
-        exec python3 "$SCRIPT_DIR/algotune.py" list-tasks
+        exec python "$SCRIPT_DIR/algotune.py" list-tasks
         ;;
     
     "list-task-lists")
-        exec python3 "$SCRIPT_DIR/algotune.py" list-task-lists
+        exec python "$SCRIPT_DIR/algotune.py" list-task-lists
         ;;
     
     "evaluate")
@@ -347,16 +347,16 @@ PY
         if [ "$STANDALONE" = true ] || ([ "$HAS_SLURM" = false ] && [ "$STANDALONE" != true ]); then
             echo "📊 Running evaluation in standalone mode..."
             if [ -n "$MODEL_ARG" ]; then
-                exec python3 "$SCRIPT_DIR/evaluate_results.py" "$MODEL_ARG" "$MODEL_NAME" "$@"
+                exec python "$SCRIPT_DIR/evaluate_results.py" "$MODEL_ARG" "$MODEL_NAME" "$@"
             else
-                exec python3 "$SCRIPT_DIR/evaluate_results.py" "$@"
+                exec python "$SCRIPT_DIR/evaluate_results.py" "$@"
             fi
         else
             echo "🤖 Submitting evaluation jobs to SLURM..."
             if [ -n "$MODEL_ARG" ]; then
-                exec python3 "$SCRIPT_DIR/evaluate_results.py" --slurm "$MODEL_ARG" "$MODEL_NAME" "$@"
+                exec python "$SCRIPT_DIR/evaluate_results.py" --slurm "$MODEL_ARG" "$MODEL_NAME" "$@"
             else
-                exec python3 "$SCRIPT_DIR/evaluate_results.py" --slurm "$@"
+                exec python "$SCRIPT_DIR/evaluate_results.py" --slurm "$@"
             fi
         fi
         ;;

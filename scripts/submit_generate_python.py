@@ -33,7 +33,9 @@ from pathlib import Path
 
 
 # Import the centralized timing logic
-sys.path.insert(0, str(Path(__file__).parent))
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
+
 from AlgoTuner.task_lists import (
     filter_existing_tasks,
     get_available_task_lists,

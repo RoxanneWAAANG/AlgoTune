@@ -39,12 +39,14 @@ import logging
 
 import numpy as np
 import scipy.linalg as la
+
 from AlgoTuneTasks.base import register_task, Task
 
 
 # ---------------------------------------------------------------------------
 # Matrix-generation helpers
 # ---------------------------------------------------------------------------
+
 
 def _orthonormal_gauss(rng, num_rows, num_cols):
     """Orthonormal matrix via Gaussian QR  (lev='low')."""
@@ -57,6 +59,7 @@ def _orthonormal_gauss(rng, num_rows, num_cols):
 # ---------------------------------------------------------------------------
 # Task class
 # ---------------------------------------------------------------------------
+
 
 @register_task("rl4rla_block_randomized_kaczmarz")
 class Solution(Task):
@@ -99,23 +102,23 @@ class Solution(Task):
         prop_range = 1.0
 
         # MID_COND spectrum: chi-squared (df=1)
-        spectrum = rng.standard_normal(num_cols) ** 2 + 1e-6   # (n,)
+        spectrum = rng.standard_normal(num_cols) ** 2 + 1e-6  # (n,)
 
         # Left singular vectors: low-leverage (Gaussian QR)
-        U = _orthonormal_gauss(rng, num_rows, num_cols)    # (m, n)
+        U = _orthonormal_gauss(rng, num_rows, num_cols)  # (m, n)
 
         # Right singular vectors: Gaussian orthonormal
-        Vt = _orthonormal_gauss(rng, num_cols, num_cols)   # (n, n)
+        Vt = _orthonormal_gauss(rng, num_cols, num_cols)  # (n, n)
 
         # A = U diag(spectrum) Vt
-        A = (U * spectrum) @ Vt   # (m, n)
+        A = (U * spectrum) @ Vt  # (m, n)
 
         # Consistent RHS: b in column space of A
         b0 = rng.standard_normal(num_rows)
-        b_range  = U @ (U.T @ b0)
+        b_range = U @ (U.T @ b0)
         b_orthog = b0 - b_range
         mean_spec = float(np.mean(spectrum))
-        b_range  = b_range  * (mean_spec / (la.norm(b_range)  + 1e-12))
+        b_range = b_range * (mean_spec / (la.norm(b_range) + 1e-12))
         b_orthog = b_orthog * (mean_spec / (la.norm(b_orthog) + 1e-12))
         b = prop_range * b_range + (1.0 - prop_range) * b_orthog
 
@@ -179,9 +182,7 @@ class Solution(Task):
             logging.error("Cannot convert solution['x'] to numpy array.")
             return False
         if x.shape != (problem["num_cols"],):
-            logging.error(
-                f"Wrong shape: expected ({problem['num_cols']},), got {x.shape}."
-            )
+            logging.error(f"Wrong shape: expected ({problem['num_cols']},), got {x.shape}.")
             return False
         if not np.isfinite(x).all():
             logging.error("Solution contains NaN or Inf.")
@@ -190,8 +191,6 @@ class Solution(Task):
         A, b = problem["A"], problem["b"]
         rel_res = la.norm(A @ x - b) / (la.norm(b) + 1e-12)
         if rel_res >= 0.01:
-            logging.error(
-                f"Relative residual {rel_res:.4e} >= threshold 0.01."
-            )
+            logging.error(f"Relative residual {rel_res:.4e} >= threshold 0.01.")
             return False
         return True
