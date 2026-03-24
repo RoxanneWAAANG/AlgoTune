@@ -1,0 +1,27 @@
+Fit a logistic regression model by minimizing the binary cross-entropy loss
+
+    minimize  -(1/m) \sum{[ y_i log σ(a_i^T x) + (1-y_i) log(1 - σ(a_i^T x)) ]}
+
+where σ(z) = 1 / (1 + exp(-z)),  A ∈ R^{m×n},  y ∈ {0,1}^m.
+
+Input: A dictionary with keys:
+  - "A": numpy array of the feature matrix
+  - "y": numpy array of binary labels in {0, 1}
+
+Output: A dictionary with key:
+  - "x": numpy array of the weight vector
+
+Example input (n=2, illustrative):
+{
+    "A": [[0.5, -1.2], [1.1, 0.3], ...],
+    "y": [1.0, 0.0, ...],
+}
+
+Example output:
+{
+    "x": [0.82, -0.46]
+}
+
+Verification: binary cross-entropy loss < 0.5
+
+Category: matrix_operations

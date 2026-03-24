@@ -39,7 +39,6 @@ import logging
 
 import numpy as np
 import scipy.linalg as la
-
 from AlgoTuneTasks.base import register_task, Task
 
 

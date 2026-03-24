@@ -1,0 +1,25 @@
+Solve the overdetermined least-squares problem
+
+    minimize  (1/2) ||A x - b||^2,   A ∈ R^{m×n},  m >> n
+
+Input: A dictionary with keys:
+  - "A": numpy array of shape (num_rows, num_cols)
+  - "b": numpy array of shape (num_rows,)
+
+Output: A dictionary with key:
+  - "x": numpy array of the approximate minimizer
+
+Example input (n=3, illustrative):
+{
+    "A": [[1.2, 0.5, 0.3], [0.2, 2.1, 0.4], ...],
+    "b": [0.9, 1.5, ...],
+}
+
+Example output:
+{
+    "x": [0.31, 0.55, 0.12]
+}
+
+Verification: ||A x - b|| / ||b|| < 0.01
+
+Category: matrix_operations

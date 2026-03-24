@@ -3848,5 +3848,49 @@
         "eval_duration_ms": 6991614
       }
     }
+  },
+  "rl4rla_block_randomized_kaczmarz": {
+    "target_time_ms": 10,
+    "baseline_runs": {
+      "0": {
+        "success": true,
+        "avg_min_ms": 10.97944924,
+        "std_min_ms": 1.7170930516360035
+      },
+      "1": {
+        "success": true,
+        "avg_min_ms": 7.571306669999999,
+        "std_min_ms": 1.0555578900931304
+      },
+      "2": {
+        "success": true,
+        "avg_min_ms": 7.56275917,
+        "std_min_ms": 1.072508363259523
+      }
+    },
+    "n": 49,
+    "dataset_size": 100
+  },
+  "rl4rla_ls": {
+    "target_time_ms": 10,
+    "baseline_runs": {
+      "0": {
+        "success": true,
+        "avg_min_ms": 7.0841529,
+        "std_min_ms": 0.7626792790705388
+      },
+      "1": {
+        "success": true,
+        "avg_min_ms": 6.877798633333333,
+        "std_min_ms": 0.899983187372908
+      },
+      "2": {
+        "success": true,
+        "avg_min_ms": 7.032902833333333,
+        "std_min_ms": 1.0574848342487653
+      }
+    },
+    "n": 49,
+    "dataset_size": 30
   }
 }

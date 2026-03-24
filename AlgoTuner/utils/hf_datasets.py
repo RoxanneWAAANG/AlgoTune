@@ -103,6 +103,9 @@ def ensure_hf_dataset(task_name: str | None = None) -> Path | None:
     Returns:
         Path to the local "data" directory (or the task subdirectory), or None.
     """
+    # Skip HF download for custom tasks not in the official AlgoTune dataset
+    if task_name is not None and task_name.startswith("rl4rla_"):
+        return None
     if os.environ.get("ALGOTUNE_HF_DISABLE") == "1":
         return None
 
