@@ -3892,5 +3892,49 @@
     },
     "n": 49,
     "dataset_size": 30
+  },
+  "rl4rla_low": {
+    "target_time_ms": 10,
+    "baseline_runs": {
+      "0": {
+        "success": true,
+        "avg_min_ms": 7.46836035,
+        "std_min_ms": 0.7954561298007752
+      },
+      "1": {
+        "success": true,
+        "avg_min_ms": 7.319416700000002,
+        "std_min_ms": 1.3327428249484259
+      },
+      "2": {
+        "success": true,
+        "avg_min_ms": 7.743972849999999,
+        "std_min_ms": 0.9547195259922817
+      }
+    },
+    "n": 52,
+    "dataset_size": 20
+  },
+  "rl4rla_mid_high": {
+    "target_time_ms": 10,
+    "baseline_runs": {
+      "0": {
+        "success": true,
+        "avg_min_ms": 7.5508875,
+        "std_min_ms": 1.1865505929429851
+      },
+      "1": {
+        "success": true,
+        "avg_min_ms": 7.830991650000001,
+        "std_min_ms": 1.0075299387755319
+      },
+      "2": {
+        "success": true,
+        "avg_min_ms": 7.653399899999998,
+        "std_min_ms": 0.9153559306423323
+      }
+    },
+    "n": 52,
+    "dataset_size": 20
   }
 }

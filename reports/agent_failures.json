@@ -5,5 +5,33 @@
             "details": "final_eval_success=False",
             "timestamp_utc": "2026-03-17T00:12:00Z"
         }
+    },
+    "rl4rla_low": {
+        "o4-mini": {
+            "reason": "DatasetRunnerError",
+            "details": "final_eval_success=False",
+            "timestamp_utc": "2026-03-24T18:41:18Z"
+        }
+    },
+    "rl4rla_mid_low": {
+        "o4-mini": {
+            "reason": "DatasetRunnerError",
+            "details": "final_eval_success=False",
+            "timestamp_utc": "2026-03-24T19:31:43Z"
+        }
+    },
+    "rl4rla_mid_high": {
+        "o4-mini": {
+            "reason": "DatasetRunnerError",
+            "details": "final_eval_success=False",
+            "timestamp_utc": "2026-03-24T20:28:06Z"
+        }
+    },
+    "rl4rla_logistic": {
+        "o4-mini": {
+            "reason": "DatasetRunnerError",
+            "details": "final_eval_success=False",
+            "timestamp_utc": "2026-03-24T20:44:55Z"
+        }
     }
 }

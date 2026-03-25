@@ -3,5 +3,25 @@
         "o4-mini": {
             "final_speedup": "N/A"
         }
+    },
+    "rl4rla_low": {
+        "o4-mini": {
+            "final_speedup": "N/A"
+        }
+    },
+    "rl4rla_mid_low": {
+        "o4-mini": {
+            "final_speedup": "N/A"
+        }
+    },
+    "rl4rla_mid_high": {
+        "o4-mini": {
+            "final_speedup": "N/A"
+        }
+    },
+    "rl4rla_logistic": {
+        "o4-mini": {
+            "final_speedup": "N/A"
+        }
     }
 }
